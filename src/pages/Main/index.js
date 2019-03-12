@@ -16,6 +16,13 @@ export default class Main extends Component {
     repositoryError: false,
   };
 
+  componentDidMount() {
+    const repos = localStorage.getItem('repositories');
+    this.setState({
+      repositories: JSON.parse(repos),
+    });
+  }
+
   handleAddRepository = async (e) => {
     e.preventDefault();
 
@@ -31,10 +38,43 @@ export default class Main extends Component {
         repositories: [...this.state.repositories, repository],
         repositoryError: false,
       });
+      localStorage.setItem('repositories', JSON.stringify(this.state.repositories));
     } catch (err) {
       this.setState({ repositoryError: true });
     } finally {
       this.setState({ loading: false });
+    }
+  };
+
+  handleRemoveRepository = async (id) => {
+    const { repositories } = this.state;
+
+    const updatedRepositories = repositories.filter(repository => repository.id !== id);
+
+    this.setState({ repositories: updatedRepositories });
+
+    await localStorage.setItem('repositories', JSON.stringify(updatedRepositories));
+  };
+
+  handleUpdateRepository = async (id) => {
+    const { repositories } = this.state;
+
+    const repository = repositories.find(repo => repo.id === id);
+
+    try {
+      const { data } = await api.get(`/repos/${repository.full_name}`);
+
+      data.last_commit = moment(data.pushed_at).fromNow();
+
+      this.setState({
+        repositoryError: false,
+        repositoryInput: '',
+        repositories: repositories.map(repo => (repo.id === data.id ? data : repo)),
+      });
+
+      await localStorage.setItem('repositories', JSON.stringify(repositories));
+    } catch (err) {
+      this.setState({ repositoryError: true });
     }
   };
 
@@ -55,7 +95,11 @@ export default class Main extends Component {
           </button>
         </Form>
 
-        <CompareList repositories={this.state.repositories} />
+        <CompareList
+          repositories={this.state.repositories}
+          removeRepository={this.handleRemoveRepository}
+          updateRepository={this.handleUpdateRepository}
+        />
       </Container>
     );
   }

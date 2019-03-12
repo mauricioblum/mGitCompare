@@ -55,6 +55,35 @@ export const Repository = styled.div`
       &:nth-child(2n - 1) {
         background: #f5f5f5;
       }
+
+      button {
+        width: 40px;
+        height: 25px;
+        padding: 0 10px;
+        margin: 0 auto;
+        background: #e23337;
+        color: #fff;
+        border: 0;
+        font-size: 20px;
+        font-weight: bold;
+        border-radius: 3px;
+        text-align: center;
+        align-self: center;
+
+        &:hover {
+          background: #b63032;
+          cursor: pointer;
+        }
+      }
+      button.green {
+        background: #63f5b0;
+        &:hover {
+          background: #52d89f;
+        }
+      }
+    }
+    li.text-center {
+      text-align: center;
     }
   }
 `;
